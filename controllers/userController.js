@@ -42,11 +42,12 @@ const register = async (req, res) => {
                 });
             } else {
                 const newUser = new User({ name: name, email: email, password: password });
-                bcrypt.genSalt(10,(err, salt) => {
+                bcrypt.genSalt(10, (err, salt) => {
                     bcrypt.hash(newUser.password, salt, (err, hash) => {
                         if (err) throw err;
                         newUser.password = hash;
                         newUser.save().then(() => {
+                            req.flash("success_msg", "you are now registered and can log in :)")
                             res.redirect("/users/login");
                         }).catch((err) => console.log(err));
                     });
