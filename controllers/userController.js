@@ -1,4 +1,5 @@
 const User = require('../models/User')
+const bcrypt = require("bcryptjs");
 
 const login = (req, res) => {
     res.render("login")
@@ -41,9 +42,15 @@ const register = async (req, res) => {
                 });
             } else {
                 const newUser = new User({ name: name, email: email, password: password });
-                newUser.save()
-                console.log(newUser);
-                res.send("all done!!")
+                bcrypt.genSalt(10,(err, salt) => {
+                    bcrypt.hash(newUser.password, salt, (err, hash) => {
+                        if (err) throw err;
+                        newUser.password = hash;
+                        newUser.save().then(() => {
+                            res.redirect("/users/login");
+                        }).catch((err) => console.log(err));
+                    });
+                });
             }
 
         } catch (error) {
